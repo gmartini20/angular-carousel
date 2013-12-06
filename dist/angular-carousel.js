@@ -11,7 +11,7 @@
 Angular touch carousel with CSS GPU accel and slide buffering/cycling
 http://github.com/revolunet/angular-carousel
 
-TODO : 
+TODO :
  - skip initial animation
  - add/remove ngRepeat collection
  - prev/next cbs
@@ -66,6 +66,8 @@ angular.module('angular-carousel')
 .directive('rnCarousel', ['$compile', '$parse', '$swipe', '$document', '$window', 'CollectionManager', function($compile, $parse, $swipe, $document, $window, CollectionManager) {
   /* track number of carousel instances */
   var carousels = 0;
+  //global variable to store swipe direction
+  var swipeDirection = 0;
 
   return {
     restrict: 'A',
@@ -190,13 +192,15 @@ angular.module('angular-carousel')
           var position = scope.carouselCollection.position,
               lastIndex = scope.carouselCollection.getLastIndex(),
               slides=null;
-          if (position===0 && angular.isDefined(iAttrs.rnCarouselPrev)) {
+          //if swipe direction is less than 0, we call the previous function
+          if (swipeDirection < 0 && angular.isDefined(iAttrs.rnCarouselPrev)) {
             slides = $parse(iAttrs.rnCarouselPrev)(scope, {
               item: scope.carouselCollection.cards[0]
             });
             addSlides('before', slides);
           }
-          if (position===lastIndex && angular.isDefined(iAttrs.rnCarouselNext)) {
+          //if swipe direction is greater than 0, we call the next function
+          if (swipeDirection > 0 && angular.isDefined(iAttrs.rnCarouselNext)) {
             slides = $parse(iAttrs.rnCarouselNext)(scope, {
               item: scope.carouselCollection.cards[scope.carouselCollection.cards.length - 1]
             });
@@ -356,6 +360,9 @@ angular.module('angular-carousel')
                   updateSlidePosition();
                 });
               } else {
+                //the swipe change the page and we set the swipeDirection value according to the movement
+                //this variable is used to call next or previous function before the end or beginning of the array
+                swipeDirection = slideOffset;
                 scope.$apply(function() {
                   if (angular.isDefined(iAttrs.rnCarouselCycle)) {
                     // force slide move even if invalid position for cycle carousels
