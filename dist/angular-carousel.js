@@ -194,6 +194,8 @@ angular.module('angular-carousel')
               slides=null;
           //if swipe direction is less than 0, we call the previous function
           if (swipeDirection < 0 && angular.isDefined(iAttrs.rnCarouselPrev)) {
+            //reset swipeDirection to zero to prevent call previous without swiping
+            swipeDirection = 0;
             slides = $parse(iAttrs.rnCarouselPrev)(scope, {
               item: scope.carouselCollection.cards[0]
             });
@@ -201,6 +203,8 @@ angular.module('angular-carousel')
           }
           //if swipe direction is greater than 0, we call the next function
           if (swipeDirection > 0 && angular.isDefined(iAttrs.rnCarouselNext)) {
+            //reset swipeDirection to zero to prevent call next without swiping
+            swipeDirection = 0
             slides = $parse(iAttrs.rnCarouselNext)(scope, {
               item: scope.carouselCollection.cards[scope.carouselCollection.cards.length - 1]
             });
