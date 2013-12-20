@@ -61,7 +61,7 @@ angular.module('angular-carousel')
   };
 }]);
 
-angular.module('angular-carousel')
+angular.module('angular-carousel', ['Scope.safeApply'])
 
 .directive('rnCarousel', ['$compile', '$parse', '$swipe', '$document', '$window', 'CollectionManager', function($compile, $parse, $swipe, $document, $window, CollectionManager) {
   /* track number of carousel instances */
@@ -140,7 +140,7 @@ angular.module('angular-carousel')
               event.propertyName === '-webkit-transform' ||
               event.propertyName === '-moz-transform')
           ) {
-            scope.$apply(function() {
+            scope.$safeApply(function() {
               checkEdges();
               scope.carouselCollection.adjustBuffer();
               updateSlidePosition(true);
@@ -160,7 +160,7 @@ angular.module('angular-carousel')
             scope.carouselCollection[method](items, true);
           }
           if(!scope.$$phase) {
-            scope.$apply(cb);
+            scope.$safeApply(cb);
           } else {
             cb();
           }
@@ -360,14 +360,14 @@ angular.module('angular-carousel')
               //console.log(offset, startOffset, slideOffset);
               /* reset slide position if same slide (watch not triggered) */
               if (!changed) {
-                scope.$apply(function() {
+                scope.$safeApply(function() {
                   updateSlidePosition();
                 });
               } else {
                 //the swipe change the page and we set the swipeDirection value according to the movement
                 //this variable is used to call next or previous function before the end or beginning of the array
                 swipeDirection = slideOffset;
-                scope.$apply(function() {
+                scope.$safeApply(function() {
                   if (angular.isDefined(iAttrs.rnCarouselCycle)) {
                     // force slide move even if invalid position for cycle carousels
                     scope.carouselCollection.position = tmpSlideIndex;
