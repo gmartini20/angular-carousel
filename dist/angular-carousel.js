@@ -577,7 +577,8 @@ angular.module('angular-carousel')
     };
     CollectionManager.prototype.setBufferSize = function(length) {
         this.log('setBufferSize', length);
-        this.bufferSize = length;
+        //In the first load we don't have previous magazines, so we have to sum the offset of pages.
+        this.bufferSize = length + Math.floor(length / 2);
         this.adjustBuffer();
     };
     CollectionManager.prototype.isBuffered = function() {
