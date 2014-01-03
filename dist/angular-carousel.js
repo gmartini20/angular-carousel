@@ -148,7 +148,7 @@ angular.module('angular-carousel', ['Scope.safeApply'])
 
           // we should replace the 3d transform with 2d transform to prevent blurry effect on some phones (eg: GS3)
           // todo : use non-3d version for browsers not supporting it
-          carousel.css(translateSlideProperty(getTransformCoordinates(carousel[0]), true));
+          //carousel.css(translateSlideProperty(getTransformCoordinates(carousel[0]), true));
 
           }
         }
@@ -336,6 +336,12 @@ angular.module('angular-carousel', ['Scope.safeApply'])
               carousel.removeClass('rn-carousel-noanimate')
                   .addClass('rn-carousel-animate')
                   .css(translateSlideProperty(offset, true));
+          }
+          //TODO fire a broadcast to update the page.
+          var currentPageElement = document.getElementById('currentPage');
+          //if there is an pagination element, update it's value with new position.
+          if(currentPageElement){
+            currentPageElement.innerText = scope.carouselCollection.position + 1;
           }
           skipAnimation = false;
         }
