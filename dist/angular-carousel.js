@@ -253,14 +253,6 @@ angular.module('angular-carousel', ['Scope.safeApply'])
           if (newValue) updateSlidePosition();
         });
 
-        scope.$watch(collectionModel, function(newValue, oldValue) {
-          // update whole collection contents
-          // reinitialise index
-          scope.carouselCollection.setItems(newValue, false);
-          if (containerWidth===0) updateContainerWidth();
-          updateSlidePosition();
-        });
-
         if (angular.isDefined(iAttrs.rnCarouselWatch)) {
           scope.$watch(originalCollection, function(newValue, oldValue) {
             // partial collection update, watch deeply so use carefully
@@ -291,20 +283,21 @@ angular.module('angular-carousel', ['Scope.safeApply'])
         carousel[0].addEventListener('webkitTransitionEnd', transitionEndCallback, false);  // webkit
         carousel[0].addEventListener('transitionend', transitionEndCallback, false);        // mozilla
 
-        // when orientation change, force width re-redetection
-        window.addEventListener('orientationchange', resize);
         // when window is resized (responsive design)
         window.addEventListener('resize', resize);
 
         //event used to change carouselCollection position
-        window.addEventListener('setCarouselPosition',
-          function(evt){
-            scope.carouselCollection.setBufferSize(evt.pages.length);
-            scope.carouselCollection.position = evt.position;
-            scope.carouselCollection.index = evt.position;
-            scope.carouselCollection.setItems(evt.pages, false);
-          },false
+        window.addEventListener('setCarouselPosition', setCarouselPosition, false
         );
+
+        //we don't watch orientationChange neighter changes in the carousel collection.
+        //Now this is responsability of the app that uses this module.
+        function setCarouselPosition(evt){
+          scope.carouselCollection.setBufferSize(evt.pages.length);
+          scope.carouselCollection.position = evt.position;
+          scope.carouselCollection.index = evt.position;
+          scope.carouselCollection.setItems(evt.pages, false);
+        }
 
         function resize () {
             updateContainerWidth();
