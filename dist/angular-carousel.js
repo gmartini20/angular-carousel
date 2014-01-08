@@ -253,12 +253,10 @@ angular.module('angular-carousel', ['Scope.safeApply'])
           if (newValue) updateSlidePosition();
         });
 
-        var collectionReady = false;
         scope.$watch(collectionModel, function(newValue, oldValue) {
           // update whole collection contents
           // reinitialise index
-          scope.carouselCollection.setItems(newValue, collectionReady);
-          collectionReady = true;
+          scope.carouselCollection.setItems(newValue, false);
           if (containerWidth===0) updateContainerWidth();
           updateSlidePosition();
         });
@@ -267,7 +265,6 @@ angular.module('angular-carousel', ['Scope.safeApply'])
           scope.$watch(originalCollection, function(newValue, oldValue) {
             // partial collection update, watch deeply so use carefully
             scope.carouselCollection.setItems(newValue, false);
-            collectionReady = true;
             if (containerWidth===0) updateContainerWidth();
             updateSlidePosition();
           }, true);
@@ -298,6 +295,16 @@ angular.module('angular-carousel', ['Scope.safeApply'])
         window.addEventListener('orientationchange', resize);
         // when window is resized (responsive design)
         window.addEventListener('resize', resize);
+
+        //event used to change carouselCollection position
+        window.addEventListener('setCarouselPosition',
+          function(evt){
+            scope.carouselCollection.setBufferSize(evt.pages.length);
+            scope.carouselCollection.position = evt.position;
+            scope.carouselCollection.index = evt.position;
+            scope.carouselCollection.setItems(evt.pages, false);
+          },false
+        );
 
         function resize () {
             updateContainerWidth();
