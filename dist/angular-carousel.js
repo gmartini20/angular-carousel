@@ -294,27 +294,33 @@ angular.module('angular-carousel', ['Scope.safeApply'])
         //Now this is responsability of the app that uses this module.
         function setCarouselPosition(evt){
           scope.carouselCollection.setBufferSize(evt.pages.length);
+          scope.carouselCollection.canSkip = false;
           scope.carouselCollection.position = evt.position;
           scope.carouselCollection.index = evt.position;
           scope.carouselCollection.setItems(evt.pages, false);
         }
 
         function resize () {
-            updateContainerWidth();
+            updateContainerWidth(true);
             updateSlidePosition();
         }
 
-        function updateContainerWidth() {
+        function updateContainerWidth(isResize) {
+          if(isResize){
+            container.css('width', '100%');
+          }
+          else{
             container.css('width', 'auto');
-            skipAnimation = true;
-            var slides = carousel.children('li');
-            if (slides.length === 0) {
-              containerWidth = carousel[0].getBoundingClientRect().width;
-            } else {
-              containerWidth = slides[0].getBoundingClientRect().width;
-            }
-            container.css('width', containerWidth + 'px');
-            return containerWidth;
+          }
+          skipAnimation = true;
+          var slides = carousel.children('li');
+          if (slides.length === 0) {
+            containerWidth = carousel[0].getBoundingClientRect().width;
+          } else {
+            containerWidth = slides[0].getBoundingClientRect().width;
+          }
+          container.css('width', containerWidth + 'px');
+          return containerWidth;
         }
 
         /* enable carousel indicator */
@@ -489,6 +495,7 @@ angular.module('angular-carousel')
             items: [],                 // total collection
             cards: [],                 // bufered DOM collection
             updated: null,             // triggers DOM change
+            canSkip: true,             // control if it is possible to skip reload of the current page
             debug: false
         };
 
@@ -515,10 +522,11 @@ angular.module('angular-carousel')
     CollectionManager.prototype.goToIndex = function(index, delayedUpdate) {
         // cap index
         index = Math.max(0, Math.min(index, this.getLastIndex()));
-        if (this.updated && index===this.index) {
+        if (this.updated && index===this.index && this.canSkip) {
             this.log('skip position change(same)');
             return false;
         }
+        this.canSkip = true;
         var position = this.getPositionFromIndex(index);
         return this.goTo(position, delayedUpdate);
     };
@@ -538,7 +546,7 @@ angular.module('angular-carousel')
                 // unshift
                 this.log('cycleAtBeginning', position);
                 this.cycleAtBeginning();
-                position = 1;
+                position = 0;//set position to 0 because we want to go to the first page.
                 this.cycleOffset++;
                 cycled = true;
             } else if (position === this.getLastIndex()) {
