@@ -298,6 +298,8 @@ angular.module('angular-carousel', ['Scope.safeApply'])
           scope.carouselCollection.position = evt.position;
           scope.carouselCollection.index = evt.position;
           scope.carouselCollection.setItems(evt.pages, false);
+          if (containerWidth===0) updateContainerWidth();
+            updateSlidePosition();
         }
 
         function resize () {
