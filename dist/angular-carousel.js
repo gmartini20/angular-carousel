@@ -141,8 +141,8 @@ angular.module('angular-carousel', ['Scope.safeApply'])
               event.propertyName === '-moz-transform')
           ) {
             scope.$safeApply(function() {
-//              checkEdges();
-//              scope.carouselCollection.adjustBuffer();
+              checkEdges();
+              scope.carouselCollection.adjustBuffer();
               updateSlidePosition(true);
             });
 
@@ -337,8 +337,6 @@ angular.module('angular-carousel', ['Scope.safeApply'])
           if (containerWidth===0) updateContainerWidth();
           offset = Math.round(scope.carouselCollection.getRelativeIndex() * -containerWidth);
           if(swipeDirection !== 0){
-            checkEdges();
-            scope.carouselCollection.adjustBuffer();
             //TODO fire a broadcast to update the page.
             var currentPageElement = document.getElementById('currentPage');
             //if there is an pagination element, update it's value with new position.
