@@ -67,7 +67,6 @@ angular.module('angular-carousel', ['Scope.safeApply'])
   /* track number of carousel instances */
   var carousels = 0;
   //global variable to store swipe direction
-  var swipeDirection = 0;
 
   return {
     restrict: 'A',
@@ -141,8 +140,6 @@ angular.module('angular-carousel', ['Scope.safeApply'])
               event.propertyName === '-moz-transform')
           ) {
             scope.$safeApply(function() {
-              checkEdges();
-              scope.carouselCollection.adjustBuffer();
               updateSlidePosition(true);
             });
 
@@ -188,23 +185,19 @@ angular.module('angular-carousel', ['Scope.safeApply'])
           }
         }
 
-        function checkEdges() {
+        function checkEdges(direction) {
           var position = scope.carouselCollection.position,
               lastIndex = scope.carouselCollection.getLastIndex(),
               slides=null;
           //if swipe direction is less than 0, we call the previous function
-          if (swipeDirection < 0 && angular.isDefined(iAttrs.rnCarouselPrev)) {
-            //reset swipeDirection to zero to prevent call previous without swiping
-            swipeDirection = 0;
+          if (direction < 0 && angular.isDefined(iAttrs.rnCarouselPrev)) {
             slides = $parse(iAttrs.rnCarouselPrev)(scope, {
               item: scope.carouselCollection.cards[0]
             });
             addSlides('before', slides);
           }
           //if swipe direction is greater than 0, we call the next function
-          if (swipeDirection > 0 && angular.isDefined(iAttrs.rnCarouselNext)) {
-            //reset swipeDirection to zero to prevent call next without swiping
-            swipeDirection = 0
+          if (direction > 0 && angular.isDefined(iAttrs.rnCarouselNext)) {
             slides = $parse(iAttrs.rnCarouselNext)(scope, {
               item: scope.carouselCollection.cards[scope.carouselCollection.cards.length - 1]
             });
@@ -336,14 +329,6 @@ angular.module('angular-carousel', ['Scope.safeApply'])
           skipAnimation = !!forceSkipAnimation || skipAnimation;
           if (containerWidth===0) updateContainerWidth();
           offset = Math.round(scope.carouselCollection.getRelativeIndex() * -containerWidth);
-          if(swipeDirection !== 0){
-            //TODO fire a broadcast to update the page.
-            var currentPageElement = document.getElementById('currentPage');
-            //if there is an pagination element, update it's value with new position.
-            if(currentPageElement){
-              currentPageElement.innerText = scope.carouselCollection.position + 1;
-            }
-          }
           if (skipAnimation===true) {
               carousel.removeClass('rn-carousel-animate')
                   .addClass('rn-carousel-noanimate')
@@ -382,7 +367,6 @@ angular.module('angular-carousel', ['Scope.safeApply'])
               } else {
                 //the swipe change the page and we set the swipeDirection value according to the movement
                 //this variable is used to call next or previous function before the end or beginning of the array
-                swipeDirection = slideOffset;
                 scope.$safeApply(function() {
                   if (angular.isDefined(iAttrs.rnCarouselCycle)) {
                     // force slide move even if invalid position for cycle carousels
@@ -391,6 +375,16 @@ angular.module('angular-carousel', ['Scope.safeApply'])
                   }
                   scope.carouselCollection.goTo(tmpSlideIndex, true);
                 });
+                //update pages
+                //TODO fire a broadcast to update the page.
+                var currentPageElement = document.getElementById('currentPage');
+                //if there is an pagination element, update it's value with new position.
+                if(currentPageElement){
+                  currentPageElement.innerText = tmpSlideIndex + 1;
+                }
+                checkEdges(slideOffset);
+                scope.carouselCollection.adjustBuffer();
+                }
               }
             }
             swiping = 0;
