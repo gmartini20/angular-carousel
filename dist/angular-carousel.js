@@ -384,7 +384,6 @@ angular.module('angular-carousel', ['Scope.safeApply'])
                 }
                 checkEdges(slideOffset);
                 scope.carouselCollection.adjustBuffer();
-                }
               }
             }
             swiping = 0;
